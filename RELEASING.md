@@ -35,6 +35,8 @@
 - 다시 불러오면 열린 탭의 예전 스크립트는 '고아'(설정을 못 받음)가 되고 새 스크립트는 새 격리 세계에 들어간다. 고아가 사이트보다 앞선 자리를 갖고 있으므로 물러나지 않고, 새 스크립트가 `pullim:state` 이벤트로 알려 주는 설정을 따른다.
 - `document.open()` 은 그 프레임 window 의 처리기를 모두 지운다 → `<html>` 이 바뀌면 다시 붙인다.
 - 웹 페이지(안내 페이지)는 `chrome://extensions` 같은 주소를 열 수 없다 → 주소 · 폴더 경로 복사 단추로 대신함.
+- 도우미는 리눅스의 mcs(모노)로 컴파일하지만 **.NET Framework 4.5 참조 어셈블리**(NuGet, `build.sh` 에 SHA-256 고정)에 맞춘다. 모노 라이브러리에 맞추면 `String.Split('/')` 가 .NET Framework 에 없는 `Split(char, StringSplitOptions)` 에 묶여 윈도우에서 `MissingMethodException` 이 났다(첫 윈도우 실기 시험에서 잡힘). 4.8 참조 어셈블리는 `System.IO.Compression` 4.2.0.0 을 가리켜서 4.5 를 쓴다.
+- 윈도우 시험에서 한글 이름 바로가기는 `WScript.Shell` 이 영어 윈도우에서 못 읽는다 → `Shell.Application` 으로 확인. 파이썬은 `PYTHONUTF8=1`.
 - 이름에 update/setup 이 들어간 32비트 exe 는 윈도우가 관리자 권한을 요구할 수 있어 도우미 이름을 `PullimHelper.exe` 로, 옆에 `asInvoker` manifest 를 둠(mcs 는 manifest 를 exe 에 넣지 못함).
 - 확장 ID 는 manifest 의 `key` 로 고정: `jicjodhbaibbeiplmkeconolenimmgdi`.
 
