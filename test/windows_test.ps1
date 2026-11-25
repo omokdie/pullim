@@ -2,6 +2,7 @@
 #   pwsh test/windows_test.ps1 -Version 1.0.0     (dist/ 에 빌드 결과가 있어야 함)
 param([Parameter(Mandatory = $true)][string]$Version)
 $ErrorActionPreference = 'Continue'
+$env:PYTHONUTF8 = '1'   # 파이썬이 한글을 윈도우 기본 인코딩(cp1252)으로 쓰지 않게
 $root = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dist = Join-Path $root 'dist'
 $setup = Join-Path $dist "Pullim-Setup-$Version.exe"
@@ -33,11 +34,12 @@ Check 'zip 의 파일이 모두 설치됨' (-not $missing) ($missing -join ', ')
 schtasks /Query /TN 'Pullim Helper' /V /FO LIST | Out-String | Tee-Object -Variable task | Out-Null
 Check '예약 작업 (3시간마다)' ($LASTEXITCODE -eq 0 -and $task -match 'PullimHelper\.exe') $task
 $startup = Join-Path ([Environment]::GetFolderPath('Startup')) '풀림 업데이트 도우미.lnk'
-$sh = New-Object -ComObject WScript.Shell
 Check '시작 프로그램 바로가기' (Test-Path $startup)
 if (Test-Path $startup) {
-  $lnk = $sh.CreateShortcut($startup)
-  Check '시작 프로그램 바로가기 대상' ($lnk.TargetPath -like '*\Pullim\PullimHelper.exe' -and $lnk.Arguments -eq '--startup') "$($lnk.TargetPath) $($lnk.Arguments)"
+  # WScript.Shell 은 한글 이름 바로가기를 영어 윈도우에서 못 읽으므로 Shell.Application(유니코드)으로 읽음
+  $folder = (New-Object -ComObject Shell.Application).NameSpace((Split-Path $startup))
+  $lnk = $folder.ParseName((Split-Path $startup -Leaf)).GetLink
+  Check '시작 프로그램 바로가기 대상' ($lnk.Path -like '*\Pullim\PullimHelper.exe' -and $lnk.Arguments -eq '--startup') "$($lnk.Path) $($lnk.Arguments)"
 }
 $menu = Join-Path ([Environment]::GetFolderPath('Programs')) '풀림'
 foreach ($n in '풀림 설치 안내.lnk', '풀림 업데이트 확인.lnk', '풀림 확장 프로그램 폴더.lnk', '풀림 제거.lnk') {

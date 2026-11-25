@@ -24,7 +24,7 @@ jobs:
       version: ${{ steps.ver.outputs.version }}
       exists: ${{ steps.ver.outputs.exists }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: 버전 · 이미 올라간 릴리스인지
         id: ver
@@ -45,7 +45,7 @@ jobs:
           sudo apt-get install -y -qq nsis mono-mcs mono-runtime \
             libmono-system-io-compression4.0-cil libmono-system-io-compression-filesystem4.0-cil > /dev/null
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -70,7 +70,7 @@ jobs:
       - name: 업데이트 도우미 시험 (Mono)
         run: python3 test/helper_test.py build/out/PullimHelper.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dist
           path: dist/
@@ -81,8 +81,8 @@ jobs:
     needs: build
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           name: dist
           path: dist
@@ -98,7 +98,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: dist
           path: dist

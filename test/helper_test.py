@@ -2,6 +2,8 @@
 """python3 test/helper_test.py [PullimHelper.exe] — 업데이트 도우미를 가짜 릴리스로 시험 (리눅스: mono, 윈도우: 그대로)."""
 import hashlib, http.server, json, os, shutil, socketserver, subprocess, sys, tempfile, threading, zipfile
 
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')  # 윈도우 콘솔 기본 인코딩(cp1252)이면 한글 출력이 깨지므로
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'build/out/PullimHelper.exe')
 RUN = [EXE] if os.name == 'nt' else ['mono', EXE]
@@ -31,10 +33,10 @@ def install_dir(version='1.0.0'):
     mf = os.path.join(d, 'extension/manifest.json')
     m = json.load(open(mf, encoding='utf-8')); m['version'] = version
     json.dump(m, open(mf, 'w', encoding='utf-8'), ensure_ascii=False)
-    open(os.path.join(d, 'extension/old-file.txt'), 'w').write('예전 파일')
+    open(os.path.join(d, 'extension/old-file.txt'), 'w', encoding='utf-8').write('예전 파일')
     os.makedirs(os.path.join(d, 'extension/old-dir'))
-    open(os.path.join(d, 'extension/old-dir/x.txt'), 'w').write('x')
-    json.dump({'installer': 'setup', 'helper': 1}, open(os.path.join(d, 'extension/install-info.json'), 'w'))
+    open(os.path.join(d, 'extension/old-dir/x.txt'), 'w', encoding='utf-8').write('x')
+    json.dump({'installer': 'setup', 'helper': 1}, open(os.path.join(d, 'extension/install-info.json'), 'w', encoding='utf-8'))
     return d
 
 def make_zip(name, version, extra=None, evil=False):
@@ -65,7 +67,7 @@ def feed(version, url, sha, size, **more):
 
 def run(d, prefix=None):
     p = subprocess.run(RUN + ['--dir', d, '--feed', BASE + 'latest.json', '--allow-prefix', prefix or BASE, '--no-delay'],
-                       capture_output=True, text=True, timeout=120)
+                       capture_output=True, encoding='utf-8', errors='replace', timeout=120)
     return p.returncode, p.stdout + p.stderr
 
 def ver(d):
@@ -80,7 +82,7 @@ check('새 버전으로 업데이트 (종료 코드 10)', code == 10, out)
 check('manifest 버전이 1.0.1', ver(d) == '1.0.1')
 check('새 파일 · 한글 이름 폴더 생김', os.path.exists(os.path.join(d, 'extension/new-folder/새 파일.txt')))
 check('예전에만 있던 파일 · 빈 폴더 지움', not os.path.exists(os.path.join(d, 'extension/old-file.txt')) and not os.path.exists(os.path.join(d, 'extension/old-dir')))
-info = json.load(open(os.path.join(d, 'extension/install-info.json')))
+info = json.load(open(os.path.join(d, 'extension/install-info.json'), encoding='utf-8'))
 check('install-info.json 갱신', info.get('installer') == 'setup' and info.get('version') == '1.0.1' and 'updatedAt' in info, info)
 check('임시 폴더 정리', not os.path.exists(os.path.join(d, 'staging')))
 log = open(os.path.join(d, 'helper.log'), encoding='utf-8').read()
@@ -120,11 +122,11 @@ check('압축 파일 버전 ≠ 업데이트 정보 버전이면 거부', code =
 # 8) 새 설치 프로그램이 필요한 판
 feed('2.0.0', url, sha, size, minHelper=2)
 code, out = run(d)
-info = json.load(open(os.path.join(d, 'extension/install-info.json')))
+info = json.load(open(os.path.join(d, 'extension/install-info.json'), encoding='utf-8'))
 check('minHelper 가 크면 바꾸지 않고 표시만', code == 0 and ver(d) == '1.0.0' and info.get('needsSetup') is True, out)
 
 # 9) 망가진 latest.json · 없는 주소
-open(os.path.join(site, 'latest.json'), 'w').write('{"version": "1.0.1", ')
+open(os.path.join(site, 'latest.json'), 'w', encoding='utf-8').write('{"version": "1.0.1", ')
 code, out = run(d)
 check('망가진 업데이트 정보', code == 1 and ver(d) == '1.0.0', out)
 os.remove(os.path.join(site, 'latest.json'))

@@ -6,7 +6,7 @@
 //   PullimHelper.exe --now        시작 메뉴 '풀림 업데이트 확인': 결과를 창으로 알려 줌
 //   (시험용) --dir <설치 폴더> --feed <latest.json 주소> --allow-prefix <받을 주소 앞부분> --no-delay
 //
-// 빌드: mcs -target:winexe -codepage:utf8 -r:System.IO.Compression.dll -r:System.IO.Compression.FileSystem.dll ...
+// 빌드: build/build.sh — mcs 로 .NET Framework 4.8 참조 어셈블리에 맞춰 컴파일 (모노 전용 API 가 섞이지 않게)
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -206,7 +206,7 @@ static class PullimHelper
             {
                 string name = e.FullName.Replace('\\', '/');
                 if (name.EndsWith("/")) continue; // 폴더
-                if (name.StartsWith("/") || name.Contains(":") || Array.IndexOf(name.Split('/'), "..") >= 0)
+                if (name.StartsWith("/") || name.Contains(":") || Array.IndexOf(name.Split(new[] { '/' }), "..") >= 0)
                     throw new Exception("압축 파일 안에 이상한 경로가 있어요: " + name);
                 string target = Path.GetFullPath(Path.Combine(dest, name.Replace('/', Path.DirectorySeparatorChar)));
                 if (!target.StartsWith(root, StringComparison.Ordinal)) throw new Exception("압축 파일 경로가 폴더 밖을 가리켜요: " + name);
@@ -246,7 +246,7 @@ static class PullimHelper
 
     static int CompareVersions(string a, string b)
     {
-        string[] pa = a.Split('.'), pb = b.Split('.');
+        string[] pa = a.Split(new[] { '.' }), pb = b.Split(new[] { '.' });
         for (int i = 0; i < Math.Max(pa.Length, pb.Length); i++)
         {
             int x = 0, y = 0;
