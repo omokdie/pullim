@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>선택 지우기</title>
+<script src="hits.js"></script>
+<script>
+  document.addEventListener('mouseup', () => { __hits.clear++; getSelection().removeAllRanges(); });
+  setInterval(() => { if (!getSelection().isCollapsed) { __hits.clear++; window.getSelection().empty(); } }, 50);
+</script></head>
+<body style="font: 18px sans-serif; margin: 30px">
+  <p id="p1">고르면 곧바로 지워 버리는 페이지입니다</p>
+</body></html>

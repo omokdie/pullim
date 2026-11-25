@@ -1,0 +1,83 @@
+/* 풀림 — 팝업 · 설정 · 안내 화면 공통 */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f4f7f6;
+  --card: #ffffff;
+  --line: #e3e9e7;
+  --text: #17201e;
+  --muted: #5d6b68;
+  --brand: #0e8274;
+  --brand-strong: #0b6b60;
+  --brand-soft: #e2f5f1;
+  --warn: #c2410c;
+  --warn-soft: #fff1e8;
+  --hint: #b45309;
+  --hint-soft: #fff7e6;
+  --off: #9aa5a3;
+  --radius: 12px;
+  --font: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17191b;
+    --bg-soft: #1f2224;
+    --card: #222628;
+    --line: #33393b;
+    --text: #e8eeec;
+    --muted: #a0abaa;
+    --brand: #35c9ad;
+    --brand-strong: #5fd9c1;
+    --brand-soft: #173a35;
+    --warn: #fb8a4c;
+    --warn-soft: #3a2418;
+    --hint: #f2b04c;
+    --hint-soft: #3a2f17;
+    --off: #6c7675;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); }
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+kbd {
+  font: 12px var(--font); padding: 0 5px; border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 5px; background: var(--bg-soft); color: var(--text);
+}
+.muted { color: var(--muted); }
+[hidden] { display: none !important; }
+
+/* 스위치 */
+.switch { position: relative; display: inline-block; width: 42px; height: 24px; flex: none; }
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.switch span {
+  position: absolute; inset: 0; border-radius: 999px; background: var(--off); transition: background .15s;
+  pointer-events: none;
+}
+.switch span::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s;
+}
+.switch input:checked + span { background: var(--brand); }
+.switch.warn input:checked + span { background: var(--warn); }
+.switch input:checked + span::after { transform: translateX(18px); }
+.switch input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }
+.switch input:disabled { cursor: not-allowed; }
+.switch input:disabled + span { opacity: .45; }
+
+/* 버튼 */
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--text);
+  font: 600 13px var(--font); padding: 7px 12px; border-radius: 9px; cursor: pointer;
+}
+.btn:hover { border-color: var(--brand); }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn.primary:hover { background: var(--brand-strong); }
+.btn.warn { background: var(--warn); border-color: var(--warn); color: #fff; }
+.btn.small { padding: 4px 10px; font-size: 12px; }
+.btn.wide { width: 100%; }
+.icon-btn {
+  appearance: none; border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+}
+.icon-btn:hover { background: var(--bg-soft); color: var(--text); }

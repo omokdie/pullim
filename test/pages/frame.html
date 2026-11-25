@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>막힌 프레임</title>
+<style> body { user-select: none; font: 18px sans-serif; } </style>
+<script src="hits.js"></script>
+<script>
+  document.addEventListener('contextmenu', (e) => { __hits.ctx++; e.preventDefault(); });
+  document.addEventListener('selectstart', (e) => { __hits.sel++; e.preventDefault(); });
+  document.addEventListener('copy', (e) => { __hits.copy++; e.preventDefault(); });
+</script></head>
+<body><p id="p1">다른 주소에서 온 프레임 속 글입니다</p></body></html>

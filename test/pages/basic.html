@@ -1,0 +1,23 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>막힌 블로그</title>
+<style>
+  body { -webkit-user-select: none; user-select: none; font: 18px/1.6 sans-serif; margin: 30px; }
+  .post { -webkit-user-select: none !important; user-select: none !important; }
+</style>
+<script src="hits.js"></script>
+<script>
+  // 티스토리 · 옛 블로그에서 흔한 막기 (풀림보다 늦게 자리 잡음)
+  document.oncontextmenu = function () { __hits.ctx++; alert('우클릭 금지'); return false; };
+  window.addEventListener('contextmenu', (e) => { __hits.ctx++; e.preventDefault(); }, true);
+  document.addEventListener('selectstart', (e) => { __hits.sel++; e.preventDefault(); });
+  document.addEventListener('copy', (e) => { __hits.copy++; e.preventDefault(); alert('복사 금지'); });
+  document.addEventListener('cut', (e) => { __hits.cut++; e.preventDefault(); });
+  document.addEventListener('keydown', (e) => { if (e.ctrlKey && /^[cax]$/i.test(e.key)) { __hits.key++; e.preventDefault(); return false; } });
+  document.ondragstart = function () { __hits.drag++; return false; };
+</script></head>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+  <h1 id="title">막힌 블로그 글</h1>
+  <p id="p1" class="post">첫째 문단입니다 이 글은 우클릭 드래그 복사가 막혀 있어요</p>
+  <p id="p2" class="post" style="user-select: none !important; -webkit-user-select: none !important">둘째 문단은 인라인 스타일로 막았어요</p>
+  <img id="img" src="pic.png" width="150" height="100" alt="">
+  <p><input id="field" value="입력 칸 글자"></p>
+</body></html>

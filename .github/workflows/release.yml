@@ -1,0 +1,132 @@
+# 풀림 릴리스: main 에 올라온 manifest 버전의 릴리스가 아직 없으면
+#   ① 리눅스에서 시험 · 빌드 → ② 진짜 윈도우에서 설치 · 업데이트 · 제거 시험 → ③ GitHub 릴리스 게시
+# 설치된 '풀림 업데이트 도우미'는 releases/latest/download/latest.json 을 읽어 새 버전을 받아 간다.
+name: 릴리스
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['README.md', 'RELEASING.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 시험 · 빌드 (리눅스)
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      exists: ${{ steps.ver.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 버전 · 이미 올라간 릴리스인지
+        id: ver
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(python3 -c "import json;print(json.load(open('extension/manifest.json'))['version'])")
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VER" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"; echo "v$VER 릴리스가 이미 있어요 — 시험만 합니다"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"; echo "새 릴리스 v$VER 를 만들어요"
+          fi
+
+      - name: 도구 설치 (NSIS · Mono)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nsis mono-mcs mono-runtime \
+            libmono-system-io-compression4.0-cil libmono-system-io-compression-filesystem4.0-cil > /dev/null
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: npm ci · 시험용 크롬(Chrome for Testing)
+        id: chrome
+        run: |
+          npm ci --no-audit --no-fund
+          OUT=$(npx --yes @puppeteer/browsers install chrome@stable --path "$HOME/cft" | tail -1)
+          echo "path=${OUT#* }" >> "$GITHUB_OUTPUT"
+
+      - name: 설정 규칙 시험
+        run: node test/core_test.mjs
+
+      - name: 크롬에서 확장 프로그램 시험
+        env:
+          CHROME: ${{ steps.chrome.outputs.path }}
+        run: node test/ext_test.mjs
+
+      - name: 빌드
+        run: bash build/build.sh
+
+      - name: 업데이트 도우미 시험 (Mono)
+        run: python3 test/helper_test.py build/out/PullimHelper.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  windows:
+    name: 설치 · 업데이트 · 제거 시험 (윈도우)
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: 시험
+        shell: pwsh
+        run: ./test/windows_test.ps1 -Version '${{ needs.build.outputs.version }}'
+
+  publish:
+    name: GitHub 릴리스 게시
+    needs: [build, windows]
+    if: needs.build.outputs.exists != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: 릴리스 만들기
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VER: ${{ needs.build.outputs.version }}
+        run: |
+          gh release create "v$VER" \
+            "dist/Pullim-Setup-$VER.exe" "dist/Pullim-Setup.exe" \
+            "dist/pullim-extension-$VER.zip" "dist/pullim-extension.zip" \
+            "dist/latest.json" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "풀림 $VER" --notes-file dist/release-notes.md --latest
+      - name: 올라간 파일 확인 (SHA-256)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VER: ${{ needs.build.outputs.version }}
+        run: |
+          mkdir check && cd check
+          gh release download "v$VER" --repo "$GITHUB_REPOSITORY" --pattern latest.json --pattern "pullim-extension-$VER.zip" --pattern "Pullim-Setup-$VER.exe"
+          python3 - <<'PY'
+          import hashlib, json, os
+          j = json.load(open('latest.json', encoding='utf-8'))
+          for key in ('extension', 'setup'):
+              name = j[key]['url'].rsplit('/', 1)[1]
+              data = open(name, 'rb').read()
+              assert hashlib.sha256(data).hexdigest() == j[key]['sha256'], name
+              assert len(data) == j[key]['size'], name
+              print('ok', name)
+          PY

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>풀림 안내</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="shared/ui.css">
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <img src="icons/icon128.png" width="64" height="64" alt="">
+      <div>
+        <h1 id="heroTitle">풀림 안내</h1>
+        <p id="heroSub" class="muted">우클릭 · 글자 선택(드래그) · 복사를 막아 둔 사이트를 다시 쓸 수 있게 풀어 줍니다.</p>
+      </div>
+    </header>
+
+    <section id="welcome" class="panel ok" hidden>
+      <h2>풀림이 켜졌어요</h2>
+      <p>이제 따로 할 일은 없어요. 우클릭이나 복사가 막힌 사이트에 들어가도 그냥 평소처럼 쓰면 됩니다.
+        도구 막대의 퍼즐 조각 아이콘을 눌러 <b>풀림</b> 옆 핀을 누르면 아이콘이 늘 보여서 편해요.</p>
+    </section>
+
+    <section id="install" class="panel">
+      <h2>브라우저에 풀림 추가하기 <span class="muted small">(브라우저마다 한 번만)</span></h2>
+      <p>설치 프로그램이 풀림을 아래 폴더에 넣어 두었어요. 쓰는 브라우저마다 이 폴더를 한 번 불러오면, 그다음부터는 자동으로 업데이트돼요.</p>
+
+      <div class="pathbox">
+        <code id="extPath">%LOCALAPPDATA%\Pullim\extension</code>
+        <button class="btn primary" data-copy-from="extPath">폴더 경로 복사</button>
+      </div>
+      <p class="muted small" id="pathNote">폴더 선택 창 위쪽 주소 칸에 그대로 붙여넣고(Ctrl+V) Enter → <b>폴더 선택</b>을 누르면 돼요.</p>
+
+      <div class="browsers">
+        <article>
+          <h3>크롬</h3>
+          <ol>
+            <li>주소창에 <code class="copy" title="눌러서 복사">chrome://extensions</code> 입력</li>
+            <li>오른쪽 위 <b>개발자 모드</b> 켜기</li>
+            <li>왼쪽 위 <b>압축 해제된 항목 로드</b>(또는 '압축해제된 확장 프로그램을 로드합니다') 누르기</li>
+            <li>폴더 경로 붙여넣기 → <b>폴더 선택</b></li>
+          </ol>
+          <p class="muted small">크롬은 개발자 모드가 켜져 있어야 풀림이 동작해요. 꺼 두면 풀림도 꺼집니다.</p>
+        </article>
+        <article>
+          <h3>엣지</h3>
+          <ol>
+            <li>주소창에 <code class="copy" title="눌러서 복사">edge://extensions</code> 입력</li>
+            <li>왼쪽 아래(창이 넓으면 위) <b>개발자 모드</b> 켜기</li>
+            <li><b>압축을 푼 항목 로드</b>(영어 화면은 Load unpacked) 누르기</li>
+            <li>폴더 경로 붙여넣기 → <b>폴더 선택</b></li>
+          </ol>
+          <p class="muted small">엣지는 시작할 때마다 개발자 모드 확장을 끄라는 알림을 띄워요. 알림 오른쪽 위 <b>X</b> 로 닫으세요. <b>끄기</b>를 누르면 풀림이 꺼져요(그땐 edge://extensions 에서 다시 켜면 됩니다).</p>
+        </article>
+        <article>
+          <h3>네이버 웨일</h3>
+          <ol>
+            <li>주소창에 <code class="copy" title="눌러서 복사">whale://extensions</code> 입력</li>
+            <li>화면 아래쪽 <b>개발자 모드</b> 켜기</li>
+            <li><b>압축해제된 확장 앱 설치</b> 누르기</li>
+            <li>폴더 경로 붙여넣기 → <b>폴더 선택</b></li>
+          </ol>
+        </article>
+      </div>
+      <p class="muted small">브라우저마다 처음 한 번 "풀림이 켜졌어요" 안내 탭이 열리면 끝난 거예요.</p>
+    </section>
+
+    <section class="panel">
+      <h2>쓰는 법</h2>
+      <ul class="dots">
+        <li><b>그냥 쓰면 돼요.</b> 막혀 있던 우클릭 메뉴, 드래그로 글자 고르기, Ctrl+C 복사가 모든 사이트에서 다시 됩니다.</li>
+        <li><b>아이콘 글자</b> — 아무 글자 없음: 켜짐 · <span class="badge off">끔</span> 이 사이트에서 꺼 둠 · <span class="badge strong">강</span> 강력 모드 · <span class="badge hint">!</span> 강력 모드가 필요해 보임</li>
+        <li><b>그래도 안 풀리면</b> 아이콘을 눌러 <b>강력 모드</b>를 켜세요. 마우스 누름을 막거나, 고른 글자를 바로 지우거나, 투명한 판을 덮어 둔 사이트까지 풀어요.</li>
+        <li><b>사이트 기능이 이상해지면</b> 아이콘을 눌러 <b>이 사이트</b> 스위치를 끄세요. 그 사이트는 원래대로 돌아가요.</li>
+        <li><b>사이트 자체 우클릭 메뉴가 필요하면</b> <kbd>Shift</kbd> 를 누른 채 우클릭하세요.</li>
+        <li>구글 문서 · 지도 · 유튜브처럼 자체 메뉴를 쓰는 웹 앱은 처음부터 꺼 두었어요. 필요하면 아이콘에서 켤 수 있어요.</li>
+        <li>입력 칸 안에서는 사이트가 하는 대로 둡니다(비밀번호 관리자 · 글쓰기 편집기가 망가지지 않게).</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>자동 업데이트</h2>
+      <p>설치 프로그램으로 설치했다면 윈도우의 <b>풀림 업데이트 도우미</b>가 로그인할 때와 3시간마다 GitHub 에서 새 버전을 확인해요.
+        새 버전이 있으면 받아서(SHA-256 확인) 확장 폴더를 바꿔 두고, 브라우저 속 풀림은 10분 안에 그걸 알아채 스스로 다시 불러와요. 브라우저를 다시 켤 필요가 없어요.</p>
+      <p class="muted small">바로 확인하려면 시작 메뉴 → 풀림 → <b>풀림 업데이트 확인</b>. 기록은 <code>%LOCALAPPDATA%\Pullim\helper.log</code> 에 남아요.</p>
+    </section>
+
+    <section class="panel">
+      <h2>자주 묻는 것</h2>
+      <details>
+        <summary>강력 모드로도 안 풀려요</summary>
+        <p>글자를 그림이나 캔버스로 그려 둔 페이지, 글자를 뒤섞은 글꼴로 보여 주는 페이지는 확장 프로그램으로 풀 수 없어요. 그런 곳은 화면 캡처가 방법이에요.</p>
+      </details>
+      <details>
+        <summary>풀림을 지우고 싶어요</summary>
+        <p>윈도우 설정 → 앱 → 설치된 앱에서 <b>풀림</b>을 제거하고, 각 브라우저의 확장 프로그램 페이지에서 풀림의 <b>삭제</b>를 누르세요.</p>
+      </details>
+      <details>
+        <summary>설치 파일을 열 때 "Windows의 PC 보호" 창이 떠요</summary>
+        <p>개인이 만든 프로그램이라 코드 서명이 없어서 나오는 창이에요. <b>추가 정보 → 실행</b>을 누르면 설치돼요. 관리자 권한은 필요 없어요.</p>
+      </details>
+      <details>
+        <summary>무엇을 가져가거나 보내나요?</summary>
+        <p>아무것도 보내지 않아요. 풀림이 인터넷에 접속하는 건 GitHub 에서 새 버전 정보(latest.json)를 읽을 때뿐이에요. 코드는 모두 <a href="https://github.com/omokdie/pullim" target="_blank">GitHub</a> 에 공개돼 있어요.</p>
+      </details>
+      <p class="muted small">복사한 글과 그림의 저작권은 원래 만든 사람에게 있어요. 퍼 갈 때는 출처를 밝히고 허락된 범위에서 써 주세요.</p>
+    </section>
+
+    <footer class="muted small">풀림 <span id="ver"></span> · <a href="https://github.com/omokdie/pullim" target="_blank">github.com/omokdie/pullim</a></footer>
+  </main>
+  <div id="toast" class="toast" hidden></div>
+  <script src="guide.js"></script>
+</body>
+</html>

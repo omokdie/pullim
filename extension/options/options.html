@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>풀림 설정</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header class="head">
+      <img src="../icons/icon128.png" width="44" height="44" alt="">
+      <div>
+        <h1>풀림 설정</h1>
+        <p class="muted">우클릭 · 드래그 · 복사를 막아 둔 사이트를 풀어 줍니다. <span id="ver"></span></p>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <div><h2>모든 사이트에서 사용</h2><p class="muted">끄면 모든 사이트가 원래대로 동작해요.</p></div>
+        <label class="switch"><input type="checkbox" id="enabled"><span></span></label>
+      </div>
+      <h3>풀어 줄 것</h3>
+      <div id="features" class="checks"></div>
+    </section>
+
+    <section class="panel">
+      <h2>꺼 둔 사이트</h2>
+      <p class="muted">여기 있는 사이트(하위 주소 포함)에서는 풀림이 아무것도 하지 않아요. 팝업에서 끄면 여기에 들어와요.</p>
+      <ul id="disabledList" class="list"></ul>
+      <form class="add" data-list="disabledSites">
+        <input type="text" placeholder="예: blog.example.com" aria-label="꺼 둘 사이트">
+        <button class="btn">추가</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>강력 모드 사이트</h2>
+      <p class="muted">일반 모드로 안 풀리는 사이트. 마우스 누름 막기 · 고른 글자 지우기 · 투명 덮개까지 풀어요. 사이트 기능이 이상해지면 빼세요.</p>
+      <ul id="strongList" class="list"></ul>
+      <form class="add" data-list="strongSites">
+        <input type="text" placeholder="예: cafe.example.com" aria-label="강력 모드 사이트">
+        <button class="btn">추가</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <div>
+          <h2>웹 앱은 기본으로 꺼 두기</h2>
+          <p class="muted">구글 문서 · 지도 · 유튜브처럼 자체 우클릭 메뉴나 복사 기능을 쓰는 사이트는 풀지 않아요. 아래에서 체크한 웹 앱은 예외에서 빼고 풀림을 켭니다.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="useBuiltin"><span></span></label>
+      </div>
+      <ul id="builtinList" class="grid"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>업데이트</h2>
+      <div id="updateBox" class="muted">확인하는 중…</div>
+      <div class="actions">
+        <button id="checkNow" class="btn">지금 확인</button>
+        <a id="releases" class="btn" target="_blank">GitHub 릴리스</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>도움말</h2>
+      <p><a href="../guide.html">사용 방법 · 다른 브라우저에 추가하기 · 자주 묻는 것</a></p>
+      <div class="actions"><button id="reset" class="btn">설정 처음으로</button></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" hidden></div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

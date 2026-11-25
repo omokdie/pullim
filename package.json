@@ -1,0 +1,14 @@
+{
+  "name": "pullim",
+  "private": true,
+  "version": "1.0.0",
+  "description": "풀림 — 우클릭·드래그·복사 제한 해제 (개발 · 시험용 도구)",
+  "type": "module",
+  "scripts": {
+    "test": "node test/core_test.mjs && node test/ext_test.mjs",
+    "icons": "node tools/make_icons.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.18.1"
+  }
+}

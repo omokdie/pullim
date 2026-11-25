@@ -1,0 +1,11 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>누름 막기</title>
+<script src="hits.js"></script>
+<script>
+  document.onmousedown = function (e) { __hits.down++; return false; };
+  document.addEventListener('mousedown', (e) => { if (e.button === 0) e.preventDefault(); });
+  document.addEventListener('mousedown', (e) => { if (e.button === 2) { __hits.rdown++; alert('오른쪽 버튼 금지'); } });
+</script></head>
+<body style="font: 18px sans-serif; margin: 30px" onmousedown="return false">
+  <p id="p1">누르는 순간을 막아서 글자 선택이 시작되지 않는 페이지</p>
+  <button id="btn" onclick="__hits.menu++">단추</button>
+</body></html>

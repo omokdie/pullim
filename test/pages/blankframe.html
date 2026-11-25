@@ -1,0 +1,16 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>빈 프레임</title><script src="hits.js"></script></head>
+<body style="margin: 20px">
+  <iframe id="s" width="500" height="80" srcdoc="<style>body{user-select:none;font:18px sans-serif}</style><script>document.addEventListener('contextmenu',e=>{parent.__hits.ctx++;e.preventDefault()});document.addEventListener('selectstart',e=>{parent.__hits.sel++;e.preventDefault()})</script><p id=p1>srcdoc 프레임 속 글입니다</p>"></iframe>
+  <div id="holder"></div>
+  <script>
+    const f = document.createElement('iframe');
+    f.id = 'w'; f.width = 500; f.height = 80;
+    document.getElementById('holder').append(f);
+    const d = f.contentDocument;
+    d.open();
+    d.write('<style>body{user-select:none;font:18px sans-serif}</style><p id="p1">document.write 로 쓴 프레임 속 글입니다</p>');
+    d.close();
+    d.addEventListener('contextmenu', (e) => { __hits.ctx++; e.preventDefault(); });
+    d.addEventListener('selectstart', (e) => { __hits.sel++; e.preventDefault(); });
+  </script>
+</body></html>

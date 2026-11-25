@@ -1,0 +1,14 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>편집기</title>
+<script src="hits.js"></script></head>
+<body style="font: 18px sans-serif; margin: 30px">
+  <div id="ed" contenteditable="true" style="border: 1px solid #aaa; padding: 8px">편집기 안의 글입니다</div>
+  <p><input id="field" value="hello input"></p>
+  <script>
+    document.getElementById('ed').addEventListener('copy', (e) => {
+      __hits.edcopy++;
+      e.clipboardData.setData('text/plain', 'EDITOR:' + String(getSelection()));
+      e.preventDefault();
+    });
+    document.getElementById('field').addEventListener('contextmenu', () => { __hits.inputctx++; });
+  </script>
+</body></html>

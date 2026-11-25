@@ -1,0 +1,6 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>프레임 안 블로그</title></head>
+<body style="margin: 20px">
+  <p>네이버 블로그처럼 본문이 다른 주소의 프레임 안에 있는 페이지</p>
+  <iframe id="f" width="600" height="200" style="border: 1px solid #999"></iframe>
+  <script>document.getElementById('f').src = 'http://localhost:' + location.port + '/frame.html';</script>
+</body></html>
