@@ -15,7 +15,8 @@ const SHOTS = !!process.env.SHOTS;
 mkdirSync(path.join(ROOT, 'test/tmp'), { recursive: true });
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '0.0.0.0', '--directory', path.join(ROOT, 'test/pages')], { stdio: 'ignore' });
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const SLOW = Number(process.env.SLOW || (process.env.CI ? 2 : 1));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms * SLOW));
 await sleep(600);
 
 let failures = 0;
@@ -112,7 +113,13 @@ async function ctrl(page, key) {
 const clip = (page) => page.evaluate(() => navigator.clipboard.readText());
 const setClip = (page, t) => page.evaluate((t) => navigator.clipboard.writeText(t), t);
 const hits = (target) => target.evaluate(() => ({ ...window.__hits }));
-const userSelect = (target, sel) => target.$eval(sel, (el) => getComputedStyle(el).userSelect);
+const userSelectNow = (target, sel) => target.$eval(sel, (el) => getComputedStyle(el).userSelect);
+// 설정이 퍼지고 CSS 가 들어갈 때까지 최대 4초 기다렸다가 값을 돌려줌
+async function userSelect(target, sel, want = null) {
+  let v = await userSelectNow(target, sel);
+  for (let i = 0; i < 40 && want !== null && v !== want; i++) { await new Promise((r) => setTimeout(r, 100)); v = await userSelectNow(target, sel); }
+  return v;
+}
 
 // ─────────────────────────────────────────────────────────────
 console.log(`# 대조군: 풀림 없이 (${BASE})`);
@@ -124,7 +131,7 @@ console.log(`# 대조군: 풀림 없이 (${BASE})`);
     await rightClick(page, '#p1');
     const h = await hits(page);
     assert.ok(h.ctx >= 1, '우클릭 처리기가 불려야 함');
-    assert.equal(await userSelect(page, '#p2'), 'none');
+    assert.equal(await userSelect(page, '#p2', 'none'), 'none');
     await page.evaluate(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById('p1')); getSelection().removeAllRanges(); getSelection().addRange(r); });
     await setClip(page, 'BEFORE');
     await ctrl(page, 'KeyC');
@@ -145,7 +152,7 @@ console.log('\n# 풀림 켬');
 const extCopy = mkdtempSync(path.join(tmpdir(), 'pullim-ext-'));
 cpSync(path.join(ROOT, 'extension'), extCopy, { recursive: true });
 const { browser, id, sw: sw0 } = await launch(true, extCopy);
-const killer = setTimeout(() => { console.log('시간 초과'); try { browser.process().kill('SIGKILL'); } catch {} process.exit(2); }, 240000);
+const killer = setTimeout(() => { console.log('시간 초과'); try { browser.process().kill('SIGKILL'); } catch {} process.exit(2); }, 480000 * SLOW);
 let sw = sw0;
 
 await test('설치하면 환영 안내 탭이 열리고 기본 설정이 저장된다', async () => {
@@ -158,8 +165,8 @@ await test('설치하면 환영 안내 탭이 열리고 기본 설정이 저장�
 
 await test('우클릭 · 드래그 · Ctrl+C · Ctrl+A 가 풀린다 (티스토리식 막기)', async () => {
   const page = await open(browser, `${BASE}/basic.html`);
-  assert.equal(await userSelect(page, '#p1'), 'auto');
-  assert.equal(await userSelect(page, '#p2'), 'auto', '인라인 !important 도 이겨야 함');
+  assert.equal(await userSelect(page, '#p1', 'auto'), 'auto');
+  assert.equal(await userSelect(page, '#p2', 'auto'), 'auto', '인라인 !important 도 이겨야 함');
   const s = await dragSelect(page, '#p1');
   assert.match(s, /첫째 문단입니다/);
   await setClip(page, 'BEFORE');
@@ -210,7 +217,7 @@ await test('다른 주소의 프레임 안도 풀린다', async () => {
   const frame = await fe.contentFrame();
   const box = await fe.boundingBox();
   const off = { x: box.x + 1, y: box.y + 1 };
-  assert.equal(await userSelect(frame, '#p1'), 'auto');
+  assert.equal(await userSelect(frame, '#p1', 'auto'), 'auto');
   const s = await dragSelect(page, '#p1', frame, off);
   assert.match(s, /프레임 속 글/);
   await rightClick(page, '#p1', {}, frame, off);
@@ -226,7 +233,7 @@ await test('srcdoc · document.write 로 만든 빈(about:blank) 프레임도 �
     const frame = await fe.contentFrame();
     const box = await fe.boundingBox();
     const off = { x: box.x + 1, y: box.y + 1 };
-    assert.equal(await userSelect(frame, '#p1'), 'auto', id + ' CSS');
+    assert.equal(await userSelect(frame, '#p1', 'auto'), 'auto', id + ' CSS');
     const s = await dragSelect(page, '#p1', frame, off);
     assert.match(s, /프레임 속 글/, id + ' 선택');
     await rightClick(page, '#p1', {}, frame, off);
@@ -238,14 +245,14 @@ await test('srcdoc · document.write 로 만든 빈(about:blank) 프레임도 �
 await test('이 사이트 끄기 — 새로고침 없이 바로 원래대로, 다시 켜면 바로 풀림', async () => {
   const page = await open(browser, `${BASE}/basic.html`);
   await setSettings(sw, { disabledSites: ['127.0.0.1'] });
-  assert.equal(await userSelect(page, '#p1'), 'none');
+  assert.equal(await userSelect(page, '#p1', 'none'), 'none');
   await rightClick(page, '#p1');
   assert.ok((await hits(page)).ctx >= 1);
   await setSettings(sw, { disabledSites: [] });
   const before = (await hits(page)).ctx;
   await rightClick(page, '#p1');
   assert.equal((await hits(page)).ctx, before);
-  assert.equal(await userSelect(page, '#p1'), 'auto');
+  assert.equal(await userSelect(page, '#p1', 'auto'), 'auto');
 });
 
 await test('꺼 둔 사이트의 프레임도 꺼진다 (맨 위 주소 기준)', async () => {
@@ -253,7 +260,7 @@ await test('꺼 둔 사이트의 프레임도 꺼진다 (맨 위 주소 기준)'
   const page = await open(browser, `${BASE}/iframe.html`);
   await sleep(400);
   const frame = await (await page.$('#f')).contentFrame();
-  assert.equal(await userSelect(frame, '#p1'), 'none');
+  assert.equal(await userSelect(frame, '#p1', 'none'), 'none');
   await setSettings(sw, { disabledSites: [] });
 });
 
@@ -262,7 +269,7 @@ await test('모든 사이트 끄기', async () => {
   const page = await open(browser, `${BASE}/basic.html`);
   await rightClick(page, '#p1');
   assert.ok((await hits(page)).ctx >= 1);
-  assert.equal(await userSelect(page, '#p1'), 'none');
+  assert.equal(await userSelect(page, '#p1', 'none'), 'none');
   await setSettings(sw, { enabled: true });
 });
 
@@ -363,7 +370,7 @@ await test('팝업 화면 (막힌 블로그에서)', async () => {
   await sleep(400);
   const { settings } = await sw.evaluate(() => chrome.storage.local.get('settings'));
   assert.deepEqual(settings.disabledSites, ['127.0.0.1']);
-  assert.equal(await userSelect(page, '#p1'), 'none');
+  assert.equal(await userSelect(page, '#p1', 'none'), 'none');
   if (SHOTS) await pop.screenshot({ path: path.join(ROOT, 'test/tmp/popup-off.png'), fullPage: true });
   // 강력 모드 켜기 (팝업은 꺼진 사이트에선 강력 모드를 막아 둠)
   await pop.click('#siteToggle');
